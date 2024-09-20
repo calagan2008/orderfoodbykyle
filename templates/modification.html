@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Réserver votre plat</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+
+	$(document)
+	.on('keydown', '.alphanumeric', function(e) {
+		var a = e.key;
+		if (a.length == 1){
+			return /[a-z]|[0-9 ]|&/i.test(a);
+		} else {
+			return true;
+		}
+	})
+
+
+        function validerModification(index) {
+            var resto = $('#inputresto-' + index).val();
+            var menu = $('#inputmenu-' + index).val();
+
+            $.ajax({
+                url: "/reservermonplat/" + index + "/" + resto + "/" + menu,
+                type: 'GET',
+                success: function(response) {
+                    alert('Modification réussie !');
+                    window.location.href = "/reservermonplat"; // Rediriger vers la page d'accueil après la modification
+                },
+                error: function(error) {
+                    console.error('Erreur:', error);
+                    alert('Une erreur est survenue, vérifiez si votre commande a bien été prise en compte, sinon recommencez');
+                }
+            });
+        }
+
+        $(document).ready(function() {
+            var deleteMode = false;
+
+            $('.btn-danger').click(function() {
+                deleteMode = !deleteMode;
+                if (deleteMode) {
+                    $(this).text('Cliquez sur une ligne à supprimer');
+                } else {
+                    $(this).text('Supprimer une personne');
+                }
+            });
+
+            $('table').on('click', 'tr', function() {
+                if (deleteMode && $(this).index() > 0) {
+                    var rowIndex = $(this).index() - 1;
+                    $.ajax({
+                        url: "/reservermonplat/supprimer/" + rowIndex,
+                        type: 'GET',
+                        success: function(response) {
+                            alert('Suppression réussie !');
+                            window.location.href = "/reservermonplat"; // Rediriger vers la page d'accueil après la suppression
+                        },
+                        error: function(error) {
+                            console.error('Erreur:', error);
+                            alert('Une erreur est survenue.');
+                        }
+                    });
+                    deleteMode = false;
+                    $('.btn-danger').text('Supprimer une personne');
+                }
+            });
+        });
+    </script>
+
+    <style>
+        .table td, .table th {
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <nav class="navbar navbar-light" style="background-color: white;">
+        <a class="navbar-brand" href="#">Réserver votre plat</a>
+    </nav>
+
+    <table class="table" border>
+        {% for element in data %}
+        {% if loop.index == 1 %}
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Nom</th>
+                <th scope="col">Restaurant</th>
+                <th scope="col">Menu choisi</th>
+                <th scope="col">Actions</th>
+            </tr>
+        </thead>
+        {% else %}
+        <tr>
+            <th scope="row">{{ loop.index -1 }}</th>
+            <td>{{ element[0] }}</td>
+            {% if champsAmodifier == loop.index-1 %}
+            <td><input type="text" class="alphanumeric" id="inputresto-{{ loop.index -1 }}" placeholder="Enter restaurant" value="{{ resto }}"></td>
+            <td><input type="text" class="alphanumeric" id="inputmenu-{{ loop.index -1 }}" placeholder="Enter menu" value="{{ menu }}"></td>
+            <td align="center">
+				<a href="/reservermonplat">
+                <button type="button" class="btn btn-primary" onclick="validerModification({{ loop.index -1 }})">Valider</button>
+                </a>
+				<a href="/reservermonplat">
+                <button type="button" class="btn btn-secondary">Annuler modif</button>
+                </a>
+            </td>
+            {% else %}
+            <td>{{ element[1] }}</td>
+            <td>{{ element[2] }}</td>
+            <td></td>
+            {% endif %}
+        </tr>
+        {% endif %}
+        {% endfor %}
+    </table>
+
+
+</div>
+
+</body>
+</html>
+

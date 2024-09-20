@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Order Food By Kyle</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+	<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script>
+        function supprimerPersonne(index) {
+
+            $.ajax({
+                url: "/reservermonplat/supprimer/" + index,
+                type: 'GET',
+                success: function(response) {
+                    alert('Suppression réussie!');
+                    window.location.href = "/reservermonplat"; // Rediriger vers la page d'accueil après la modification
+                },
+                error: function(error) {
+                    console.error('Erreur:', error);
+                    alert('Une erreur est survenue.');
+                }
+            });
+        }
+
+</script>
+
+<script>
+function sortTable(n) {
+  var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+  table = document.getElementById("myTable");
+  switching = true;
+  dir = "asc";
+  while (switching) {
+    switching = false;
+    rows = table.rows;
+    for (i = 1; i < (rows.length - 1); i++) {
+      shouldSwitch = false;
+      x = rows[i].getElementsByTagName("TD")[n];
+      y = rows[i + 1].getElementsByTagName("TD")[n];
+      if (dir == "asc") {
+        if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+          shouldSwitch = true;
+          break;
+        }
+      } else if (dir == "desc") {
+        if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+          shouldSwitch = true;
+          break;
+        }
+      }
+    }
+    if (shouldSwitch) {
+      rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+      switching = true;
+      switchcount ++;
+
+    } else {
+      if (switchcount == 0 && dir == "asc") {
+        dir = "desc";
+        switching = true;
+         rows[i].parentNode.insertAfter(rows[i + 1], rows[i]);
+      }
+    }
+  }
+}
+</script>
+
+<style>
+    .table td, .table th {
+        vertical-align: middle;
+    }
+</style>
+
+</head>
+
+
+<body>
+<div class="container">
+<nav class="navbar navbar-light" style="background-color: white;">
+   <a class="navbar-brand" href="#"><b>Réservez votre plat</b></a>
+</nav>
+
+
+
+
+<table class="table" id="myTable" border>
+
+  {% for element in data %}
+
+  {% if loop.index == 1 %}
+    <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col" onclick="sortTable(0)"> Nom </th>
+      <th scope="col" onclick="sortTable(1)">Restaurant</th>
+      <th scope="col" onclick="sortTable(2)">Menu choisi</th>
+      <th scope="col">Actions</th>
+    </tr>
+  </thead>
+
+
+  {% else %}
+
+    <tr>
+      <th scope="row">{{loop.index -1}}</th>
+      <td>{{ element[0] }}</td>
+      <td>{{ element[1] }}</td>
+      <td>{{ element[2] }}</td>
+	  <td align="center">
+
+	  <a href="/reservermonplat/Modifier{{loop.index -1}}">
+	  <button id={{loop.index -1}} type="button" class="btn btn-primary"  >Modifier</button>
+	  </a>
+
+
+	  <button title="Supprimer cette ligne" id="Sup{{loop.index -1}}" type="button" class="btn btn-danger" onclick="supprimerPersonne({{loop.index -1}})" >X</button>
+
+	  </td>
+
+	</tr>
+
+	{% endif %}
+
+{% endfor %}
+
+  </tbody>
+</table>
+<a href="/reservermonplat/add">
+	  <button id="add" type="button" class="btn btn-success"  >+ Ajouter une personne</button>
+</a>
+<a class="telecharger" href="static/listedescollabsetmenus.csv" download>Télécharger le CSV</a>
+
+
+</div>
+
+
+
+
+</body>
+</html>

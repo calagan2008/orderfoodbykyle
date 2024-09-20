@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Python Programming Tutorials</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+	<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script>
+
+		$(document)
+			.on('keydown', '.alphanumeric', function(e) {
+				var a = e.key;
+				if (a.length == 1){
+					return /[a-z]|[0-9 ]|&/i.test(a);
+				} else {
+					return true;
+				}
+			})
+
+        function ajoutPersonne() {
+			var personne = $('#inputnom').val();
+            var resto = $('#inputresto').val();
+            var menu = $('#inputmenu').val();
+
+            $.ajax({
+                url: "/reservermonplat/add/" + personne + "/" + resto + "/" + menu,
+                type: 'GET',
+                success: function(response) {
+                    alert('Ajout réussi !');
+                    window.location.href = "/reservermonplat"; // Rediriger vers la page d'accueil après la modification
+                },
+                error: function(error) {
+                    console.error('Erreur:', error);
+                    alert('Une erreur est survenue.');
+                }
+            });
+        }
+
+</script>
+<style>
+    .table td, .table th {
+        vertical-align: middle;
+    }
+</style>
+</head>
+
+
+<body>
+<div class="container">
+<nav class="navbar navbar-light" style="background-color: white;">
+   <a class="navbar-brand" href="#">Réserver votre plat</a>
+</nav>
+
+<table class="table" border>
+
+  {% for element in data %}
+
+  {% if loop.index == 1 %}
+    <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col"> Nom </th>
+      <th scope="col">Restaurant</th>
+      <th scope="col">Menu choisi</th>
+    </tr>
+  </thead>
+
+
+  {% else %}
+
+    <tr>
+      <th scope="row">{{loop.index -1}}</th>
+      <td>{{ element[0] }}</td>
+      <td>{{ element[1] }}</td>
+      <td>{{ element[2] }}</td>
+
+	</tr>
+
+	{% endif %}
+
+{% endfor %}
+	<tr>
+      <th scope="row">New</th>
+      <td><input type="text" id="inputnom" class="alphanumeric" placeholder="Enter person" value="{{ person }}"></td>
+      <td><input type="text" id="inputresto"  class="alphanumeric" placeholder="Enter resto" value="{{ resto }}"></td>
+      <td><input type="text" id="inputmenu"  class="alphanumeric" placeholder="Enter menu" value="{{ menu }}"></td>
+
+
+	</tr>
+  </tbody>
+</table>
+
+<button type="button" class="btn btn-success" onclick="ajoutPersonne()">Valider l'ajout</button>
+
+<a href="/reservermonplat">
+<button type="button" class="btn btn-danger">Annuler et retour</button>
+</a>
+
+</div>
+
+
+
+</body>
+</html>
