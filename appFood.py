@@ -9,8 +9,8 @@ current_folder = os.getcwd()
 
 @app.route("/")
 def helloWorld():
-    return "Hello World"
-
+    ligneFichierCSV = restituerCSV()
+    return render_template("index.html", data=ligneFichierCSV)
 
 @app.route("/reservermonplat")
 def afficherHomePage():
